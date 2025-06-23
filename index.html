@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PaLaFeKoMa 메인 페이지</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+        }
+
+        header {
+            background-color: #1e272e;
+            color: white;
+            padding: 60px 20px 40px;
+            text-align: center;
+            width: 50%;
+        }
+
+        header h1 {
+            font-size: 48px;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #dcdde1;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 200px;
+            margin: 20px;
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            font-size: 22px;
+        }
+
+        .card p {
+            flex: 1;
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .card button {
+            padding: 10px 15px;
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .card button:hover {
+            background-color: #16a085;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>PaLaFeKoMa</h1>
+        <p>📚 확률과 통계를 쉽고 재미있게 배우는 계산 도우미</p>
+
+        <p style="margin-top: 20px; font-size: 19px; color: #dcdde1;">
+            <strong>PaLaFeKoMa</strong>는 확률과 통계를 개척한 위대한 수학자 5명<br><br>
+            확률과 통계의 기초를 세운 파스칼 (<b>Pa</b>scal)<br>
+            결정론을 넘은 가능성을 연 수학자 라플라스 (<b>La</b>place)<br>
+            현대 확률론을 체계화한 펠러 (<b>Fe</b>ller)<br>
+            엄밀한 공리 체계를 정립한 콜모고로프 (<b>Ko</b>lmogorov)<br>
+            무작위 과정의 흐름을 밝힌 마르코프 (<b>Ma</b>rkov)<br><br>
+            그 다섯명을 기리기 위해 따온 이름입니다.<br><br>
+
+            이 프로그램을 단순한 계산기 이상의 <b>의미 있는 프로그램</b>으로 만들고자 했습니다<br>
+            <b>PaLaFeKoMa</b>는 이들의 업적을 기리며,<br>
+            정교하고 신뢰할 수 있는 계산기의 상징입니다.
+        </p>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h3>경우의 수</h3>
+            <p>모든 미래를 논리로 계산하는 방법.</p>
+            <button onclick="location.href='Calculation-Part1.html'">계산기로 이동</button>
+        </div>
+
+        <div class="card">
+            <h3>확률과 통계</h3>
+            <p>불확실성을 수로 이해하는 도구.</p>
+            <button onclick="location.href='Calculation-Part2.html'">계산기로 이동</button>
+        </div>
+    </div>
+</body>
+</html>

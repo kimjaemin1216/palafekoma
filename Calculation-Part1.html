@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>확률과 통계 계산기 - PaLaFeKoMa</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .sidebar {
+        width: 260px;
+        background-color: #2c3e50;
+        color: white;
+        padding: 20px;
+        overflow-y: auto;
+        flex-shrink: 0;
+        }
+
+        .sidebar h3 {
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            border-bottom: 1px solid #476072;
+            padding-bottom: 6px;
+            font-size: 18px;
+            user-select: none;
+        }
+
+        .sidebar button {
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            color: white;
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+            user-select: none;
+            margin-bottom: 5px;
+        }
+
+        .sidebar button:hover {
+            background-color: #34495e;
+        }
+
+        .sidebar button.selected {
+            background-color: #1abc9c;
+            color: #1e272e;
+            font-weight: 700;
+        }
+
+        .program-title {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            user-select: none;
+            color: #1abc9c;
+            text-decoration: none;
+            display: block;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1abc9c;
+            cursor: pointer;
+            }
+
+        .program-title:hover {
+            color: #16a085;
+            border-color: #16a085;
+            }
+
+        .main {
+            flex: 1;
+            padding: 40px 50px;
+            overflow-y: auto;
+        }
+
+        .main h1 {
+            margin-top: 0;
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1.8px solid #ccc;
+            border-radius: 6px;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            border-color: #1abc9c;
+            outline: none;
+        }
+
+        button.calculate-btn {
+            margin-top: 25px;
+            padding: 12px;
+            width: 100%;
+            font-size: 18px;
+            background-color: #2c3e50;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.25s ease;
+        }
+
+        button.calculate-btn:hover {
+            background-color: #34495e;
+        }
+
+        #result {
+            margin-top: 30px;
+            font-weight: 700;
+            font-size: 22px;
+            color: #16a085;
+            white-space: pre-wrap;
+        }
+
+        #explanation {
+            margin-top: 12px;
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <a href="index.html" class="program-title" title="메인 페이지로 이동">PaLaFeKoMa</a>
+
+        <h3>경우의 수</h3>
+        <button onclick="selectType('factorial', this)">팩토리얼</button>
+        <button onclick="selectType('sum_rule', this)">합의 법칙</button>
+        <button onclick="selectType('product_rule', this)">곱의 법칙</button>
+
+        <h3>순열</h3>
+        <button onclick="selectType('normal_perm', this)">일반 순열 (nPr)</button>
+        <button onclick="selectType('repeat_perm', this)">중복 순열 (n<sup>r</sup>)</button>
+        <button onclick="selectType('same_perm', this)">같은 것이 있는 순열</button>
+        <button onclick="selectType('circle_perm', this)">원순열 ((n-1)!)</button>
+        <button onclick="selectType('same_circle_perm', this)">같은 것이 있는 원순열</button>
+
+        <h3>조합</h3>
+        <button onclick="selectType('normal_comb', this)">일반 조합 (nCr)</button>
+        <button onclick="selectType('repeat_comb', this)">중복 조합 (nHr)</button>
+        <button onclick="selectType('binomial_theorem', this)">이항정리</button>
+    </div>
+
+    <div class="main">
+        <h1 id="title">계산 유형을 선택하세요</h1>
+    
+        <div id="inputs-area">
+          <!-- 입력폼이 여기 동적으로 생성됩니다 -->
+        </div>
+    
+        <button class="calculate-btn" onclick="calculate()">계산하기</button>
+    
+        <div id="result"></div>
+        <div id="explanation"></div>
+      </div>
+
+    <script>
+        // --- 도움 함수들 ---
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n <= 1) return 1;
+            let res = 1;
+            for (let i = 2; i <= n; i++) res *= i;
+            return res;
+        }
+
+        function nPr(n, r) {
+            if (r > n) return 0;
+            return factorial(n) / factorial(n - r);
+        }
+
+        function nCr(n, r) {
+            if (r > n) return 0;
+            return factorial(n) / (factorial(r) * factorial(n - r));
+        }
+
+        // --- 쿼리 파라미터 읽기 ---
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // --- 타입별 기본 그룹 ---
+        const defaultTypeByGroup = {
+            counting: 'factorial',
+            permutation: 'normal_perm',
+            combination: 'normal_comb'
+        };
+
+        // --- 사이드바 버튼들 ---
+        const sidebarButtons = document.querySelectorAll('.sidebar button');
+
+        // --- 현재 선택된 타입 변수 ---
+        let currentType = null;
+
+        // --- 사이드바 버튼 스타일링용 ---
+        function clearSelected() {
+            sidebarButtons.forEach(btn => btn.classList.remove('selected'));
+        }
+
+        // --- 입력폼 생성 함수 ---
+        function createInput(id, label, placeholder = "", inputType = "number") {
+                return `
+      <label for="${id}">${label}</label>
+      <input type="${inputType}" id="${id}" placeholder="${placeholder}" />
+    `;
+            }
+
+        // --- 사이드바 버튼 클릭시 호출 ---
+        function selectType(type, btnElem) {
+            currentType = type;
+            clearSelected();
+            if (btnElem) btnElem.classList.add('selected');
+
+            const titleMap = {
+                factorial: "팩토리얼",
+                sum_rule: "합의 법칙",
+                product_rule: "곱의 법칙",
+                normal_perm: "일반 순열 (nPr)",
+                repeat_perm: "중복 순열 (n^r)",
+                same_perm: "같은 것이 있는 순열",
+                circle_perm: "원순열 ((n-1)!)",
+                same_circle_perm: "같은 것이 있는 원순열",
+                normal_comb: "일반 조합 (nCr)",
+                repeat_comb: "중복 조합 (nHr)",
+                binomial_theorem: "이항정리"
+            };
+
+            document.getElementById("title").innerText = titleMap[type] || "계산 유형을 선택하세요";
+            document.getElementById("result").innerText = "";
+            document.getElementById("explanation").innerText = "";
+
+            // 입력폼 동적 생성
+            let html = "";
+
+            switch (type) {
+                case "factorial":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    break;
+                case "sum_rule":
+                    html += createInput("inputA", "A 경우의 수:", "예: 3");
+                    html += createInput("inputB", "B 경우의 수:", "예: 4");
+                    break;
+                case "product_rule":
+                    html += createInput("inputA", "A 경우의 수:", "예: 3");
+                    html += createInput("inputB", "B 경우의 수:", "예: 4");
+                    break;
+                case "normal_perm":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    html += createInput("inputR", "r 값:", "예: 3");
+                    break;
+                case "repeat_perm":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    html += createInput("inputR", "r 값:", "예: 3");
+                    break;
+                case "same_perm":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    html += createInput("inputCounts", "같은 것들의 개수 합:", "예: 2,3 같이 합으로", "text");
+                    break;
+                case "circle_perm":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    break;
+                case "same_circle_perm":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    html += createInput("inputCounts", "같은 것들의 개수 합:", "예: 2,3 같이 합으로", "text");
+                    break;
+                case "normal_comb":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    html += createInput("inputR", "r 값:", "예: 3");
+                    break;
+                case "repeat_comb":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    html += createInput("inputR", "r 값:", "예: 3");
+                    break;
+                case "binomial_theorem":
+                    html += createInput("inputN", "n 값:", "예: 5");
+                    break;
+                default:
+                    html = "<p>선택한 계산 유형에 대한 입력폼이 없습니다.</p>";
+                    break;
+            }
+
+            document.getElementById("inputs-area").innerHTML = html;
+        }
+
+        // --- 계산 실행 함수 ---
+        function calculate() {
+            if (!currentType) {
+                alert("먼저 계산 유형을 선택하세요.");
+                return;
+            }
+
+            let res, explanation;
+            // 입력값 받아오기
+            const getNum = (id) => {
+                const val = document.getElementById(id).value;
+                return val === "" ? NaN : Number(val);
+            };
+
+            switch (currentType) {
+                case "factorial": {
+                    const n = getNum("inputN");
+                    if (isNaN(n) || n < 0 || !Number.isInteger(n)) {
+                        alert("n은 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    res = factorial(n);
+                    explanation = `${n}! = ${res}`;
+                    break;
+                }
+
+                case "sum_rule": {
+                    const a = getNum("inputA");
+                    const b = getNum("inputB");
+                    if ([a, b].some(x => isNaN(x) || x < 0 || !Number.isInteger(x))) {
+                        alert("모든 경우의 수는 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    res = a + b;
+                    explanation = `합의 법칙에 따라 경우의 수 = A + B = ${a} + ${b} = ${res}`;
+                    break;
+                }
+
+                case "product_rule": {
+                    const a = getNum("inputA");
+                    const b = getNum("inputB");
+                    if ([a, b].some(x => isNaN(x) || x < 0 || !Number.isInteger(x))) {
+                        alert("모든 경우의 수는 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    res = a * b;
+                    explanation = `곱의 법칙에 따라 경우의 수 = A × B = ${a} × ${b} = ${res}`;
+                    break;
+                }
+
+                case "normal_perm": {
+                    const n = getNum("inputN");
+                    const r = getNum("inputR");
+                    if ([n, r].some(x => isNaN(x) || x < 0 || !Number.isInteger(x))) {
+                        alert("n과 r은 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    if (r > n) {
+                        alert("r은 n보다 클 수 없습니다.");
+                        return;
+                    }
+                    res = nPr(n, r);
+                    explanation = `${n}P${r} = ${n}! / (${n}-${r})! = ${factorial(n)} / ${factorial(n - r)} = ${res}`;
+                    break;
+                }
+
+                case "repeat_perm": {
+                    const n = getNum("inputN");
+                    const r = getNum("inputR");
+                    if ([n, r].some(x => isNaN(x) || x < 0 || !Number.isInteger(x))) {
+                        alert("n과 r은 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    res = Math.pow(n, r);
+                    explanation = `중복 순열 = n^r = ${n}^${r} = ${res}`;
+                    break;
+                }
+
+                case "same_perm": {
+                    const n = getNum("inputN");
+                    const countsStr = document.getElementById("inputCounts").value;
+                    if (isNaN(n) || n < 0 || !Number.isInteger(n)) {
+                        alert("n은 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    // counts를 쉼표나 공백으로 분리해 숫자 배열로 만들기
+                    const counts = countsStr.split(/[\s,]+/).map(s => Number(s));
+                    if (counts.some(c => isNaN(c) || c <= 0 || !Number.isInteger(c))) {
+                        alert("같은 것들의 개수는 1 이상의 정수로 쉼표로 구분해 입력하세요.");
+                        return;
+                    }
+                    // counts 합이 n과 같은지 체크
+                    const sumCounts = counts.reduce((a, b) => a + b, 0);
+                    if (sumCounts !== n) {
+                        alert("같은 것들의 개수 합은 n과 같아야 합니다.");
+                        return;
+                    }
+                    let denom = 1;
+                    counts.forEach(c => denom *= factorial(c));
+                    res = factorial(n) / denom;
+                    explanation = `같은 것이 있는 순열 = n! / (각 같은 것들의 계승 곱) = ${n}! / (${counts.map(c => c + "!").join(" × ")}) = ${res}`;
+                    break;
+                }
+
+                case "circle_perm": {
+                    const n = getNum("inputN");
+                    if (isNaN(n) || n < 1 || !Number.isInteger(n)) {
+                        alert("n은 1 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    res = factorial(n - 1);
+                    explanation = `원순열 = (n-1)! = (${n}-1)! = ${res}`;
+                    break;
+                }
+
+                case "same_circle_perm": {
+                    const n = getNum("inputN");
+                    const countsStr = document.getElementById("inputCounts").value;
+                    if (isNaN(n) || n < 1 || !Number.isInteger(n)) {
+                        alert("n은 1 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    const counts = countsStr.split(/[\s,]+/).map(s => Number(s));
+                    if (counts.some(c => isNaN(c) || c <= 0 || !Number.isInteger(c))) {
+                        alert("같은 것들의 개수는 1 이상의 정수로 쉼표로 구분해 입력하세요.");
+                        return;
+                    }
+                    const sumCounts = counts.reduce((a, b) => a + b, 0);
+                    if (sumCounts !== n) {
+                        alert("같은 것들의 개수 합은 n과 같아야 합니다.");
+                        return;
+                    }
+                    let denom = 1;
+                    counts.forEach(c => denom *= factorial(c));
+                    res = factorial(n - 1) / denom;
+                    explanation = `같은 것이 있는 원순열 = (n-1)! / (각 같은 것들의 계승 곱) = (${n}-1)! / (${counts.map(c => c + "!").join(" × ")}) = ${res}`;
+                    break;
+                }
+
+                case "normal_comb": {
+                    const n = getNum("inputN");
+                    const r = getNum("inputR");
+                    if ([n, r].some(x => isNaN(x) || x < 0 || !Number.isInteger(x))) {
+                        alert("n과 r은 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    if (r > n) {
+                        alert("r은 n보다 클 수 없습니다.");
+                        return;
+                    }
+                    res = nCr(n, r);
+                    explanation = `${n}C${r} = ${n}! / (${r}! × (${n}-${r})!) = ${factorial(n)} / (${factorial(r)} × ${factorial(n - r)}) = ${res}`;
+                    break;
+                }
+
+                case "repeat_comb": {
+                    const n = getNum("inputN");
+                    const r = getNum("inputR");
+                    if ([n, r].some(x => isNaN(x) || x < 0 || !Number.isInteger(x))) {
+                        alert("n과 r은 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    res = nCr(n + r - 1, r);
+                    explanation = `중복 조합 = (n+r-1)C${r} = ${n + r - 1}C${r} = ${res}`;
+                    break;
+                }
+
+                case "binomial_theorem": {
+                    const n = getNum("inputN");
+                    if (isNaN(n) || n < 0 || !Number.isInteger(n)) {
+                        alert("n은 0 이상의 정수여야 합니다.");
+                        return;
+                    }
+                    explanation = `이항정리는 (x + y)^n = Σ (nCk) x^{n-k} y^k 로 전개됩니다.\n\nn = ${n}일 때 각 항의 계수는 다음과 같습니다:\n`;
+                    let coeffs = [];
+                    for (let k = 0; k <= n; k++) {
+                        coeffs.push(`${n}C${k} = ${nCr(n, k)}`);
+                    }
+                    res = "이항정리 계산 완료";
+                    explanation += coeffs.join('\n');
+                    break;
+                }
+
+                default:
+                    alert("해당 계산 유형은 아직 지원하지 않습니다.");
+                    return;
+            }
+
+            document.getElementById("result").innerText = `결과: ${res}`;
+            document.getElementById("explanation").innerText = `설명: ${explanation}`;
+        }
+
+        // --- 페이지 로드 시 쿼리 파라미터 읽고 기본 선택 적용 ---
+        window.onload = () => {
+            const group = getQueryParam('group');
+            if (group && defaultTypeByGroup[group]) {
+                // 해당 그룹 첫 버튼 선택 + 스타일 적용
+                const type = defaultTypeByGroup[group];
+                // 버튼 찾아서 클릭 효과 및 selectType 호출
+                sidebarButtons.forEach(btn => {
+                    if (btn.onclick.toString().includes(`'${type}'`)) {
+                        btn.classList.add('selected');
+                    } else {
+                        btn.classList.remove('selected');
+                    }
+                });
+                selectType(type);
+            }
+        }
+        
+    </script>
+
+</body>
+
+</html>

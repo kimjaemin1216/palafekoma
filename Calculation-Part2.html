@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>확률·통계 계산기 - PaLaFeKoMa</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar h3 {
+            margin-top: 30px;
+            font-size: 18px;
+            border-bottom: 1px solid #476072;
+            padding-bottom: 6px;
+        }
+
+        .sidebar button {
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            color: white;
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+            margin-bottom: 5px;
+        }
+
+        .sidebar button:hover {
+            background-color: #34495e;
+        }
+
+        .sidebar button.selected {
+            background-color: #1abc9c;
+            color: #1e272e;
+            font-weight: 700;
+        }
+
+        .program-title {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            user-select: none;
+            color: #1abc9c;
+            text-decoration: none;
+            display: block;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1abc9c;
+        }
+
+        .program-title:hover {
+            color: #16a085;
+            border-color: #16a085;
+        }
+
+        .main {
+            flex: 1;
+            padding: 40px 50px;
+            overflow-y: auto;
+        }
+
+        .main h1 {
+            margin-top: 0;
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1.8px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button.calculate-btn {
+            margin-top: 25px;
+            padding: 12px;
+            width: 100%;
+            font-size: 18px;
+            background-color: #2c3e50;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.25s ease;
+        }
+
+        button.calculate-btn:hover {
+            background-color: #34495e;
+        }
+
+        #result {
+            margin-top: 30px;
+            font-weight: 700;
+            font-size: 22px;
+            color: #16a085;
+            white-space: pre-wrap;
+        }
+
+        #explanation {
+            margin-top: 12px;
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <a href="index.html" class="program-title">PaLaFeKoMa</a>
+
+        <h3>확률</h3>
+        <button onclick="selectType('add_prob', this)">덧셈 법칙</button>
+        <button onclick="selectType('multi_prob', this)">곱셈 법칙</button>
+        <button onclick="selectType('cond_prob', this)">조건부 확률</button>
+        <button onclick="selectType('indep_prob', this)">독립 사건</button>
+        <button onclick="selectType('exclusive_prob', this)">배반 사건</button>
+
+        <h3>통계</h3>
+        <button onclick="selectType('mean', this)">산술 평균</button>
+        <button onclick="selectType('variance', this)">분산</button>
+        <button onclick="selectType('stddev', this)">표준편차</button>
+    </div>
+
+    <div class="main">
+        <h1 id="title">계산 유형을 선택하세요</h1>
+        <div id="inputs-area"></div>
+        <button class="calculate-btn" onclick="calculate()">계산하기</button>
+        <div id="result"></div>
+        <div id="explanation"></div>
+    </div>
+
+    <script>
+        const sidebarButtons = document.querySelectorAll('.sidebar button');
+        let currentType = null;
+
+        function selectType(type, btn) {
+            currentType = type;
+            sidebarButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            const titleMap = {
+                add_prob: "덧셈 법칙",
+                multi_prob: "곱셈 법칙",
+                cond_prob: "조건부 확률",
+                indep_prob: "독립 사건",
+                exclusive_prob: "배반 사건",
+                mean: "산술 평균",
+                variance: "분산",
+                stddev: "표준편차"
+            };
+            document.getElementById("title").innerText = titleMap[type] || "계산 유형을 선택하세요";
+            document.getElementById("result").innerText = "";
+            document.getElementById("explanation").innerText = "";
+
+            let html = "";
+            switch (type) {
+                case "add_prob":
+                case "multi_prob":
+                case "cond_prob":
+                case "indep_prob":
+                case "exclusive_prob":
+                    html += makeInput("pA", "P(A):", "0~1");
+                    html += makeInput("pB", "P(B):", "0~1");
+                    if (type === "cond_prob") html += makeInput("pAgB", "P(A|B):", "0~1");
+                    break;
+                case "mean":
+                case "variance":
+                case "stddev":
+                    html += makeInput("values", "데이터 목록 (쉼표로 구분):", "예: 10, 20, 30");
+                    break;
+            }
+            document.getElementById("inputs-area").innerHTML = html;
+        }
+
+        function makeInput(id, label, placeholder) {
+            return `<label for="${id}">${label}</label><input id="${id}" placeholder="${placeholder}" />`;
+        }
+
+        function calculate() {
+            if (!currentType) return alert("계산 유형을 선택하세요.");
+            const p = id => parseFloat(document.getElementById(id)?.value);
+            const valuesStr = document.getElementById("values")?.value;
+
+            let result = "";
+            let explanation = "";
+
+            switch (currentType) {
+                case "add_prob": {
+                    const pA = p("pA"), pB = p("pB");
+                    result = pA + pB;
+                    explanation = `P(A ∪ B) = P(A) + P(B) = ${pA} + ${pB} = ${result}`;
+                    break;
+                }
+                case "multi_prob": {
+                    const pA = p("pA"), pB = p("pB");
+                    result = pA * pB;
+                    explanation = `P(A ∩ B) = P(A) × P(B) = ${pA} × ${pB} = ${result}`;
+                    break;
+                }
+                case "cond_prob": {
+                    const pAB = p("pAgB"), pB = p("pB");
+                    if (pB === 0) return alert("P(B)는 0이 아니어야 합니다.");
+                    result = pAB * pB;
+                    explanation = `P(A ∩ B) = P(A|B) × P(B) = ${pAB} × ${pB} = ${result}`;
+                    break;
+                }
+                case "indep_prob": {
+                    const pA = p("pA"), pB = p("pB");
+                    result = pA * pB;
+                    explanation = `P(A ∩ B) = P(A) × P(B) = ${pA} × ${pB} = ${result} (독립 사건)`;
+                    break;
+                }
+                case "exclusive_prob": {
+                    const pA = p("pA"), pB = p("pB");
+                    result = pA + pB;
+                    explanation = `P(A ∪ B) = P(A) + P(B) (배반 사건이므로 교집합 없음) = ${pA} + ${pB} = ${result}`;
+                    break;
+                }
+                case "mean": {
+                    const vals = valuesStr.split(/[\s,]+/).map(Number);
+                    const sum = vals.reduce((a, b) => a + b, 0);
+                    const avg = sum / vals.length;
+                    result = avg.toFixed(4);
+                    explanation = `산술 평균 = 합 / 개수 = ${sum} / ${vals.length} = ${result}`;
+                    break;
+                }
+                case "variance": {
+                    const vals = valuesStr.split(/[\s,]+/).map(Number);
+                    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+                    const variance = vals.reduce((acc, x) => acc + Math.pow(x - mean, 2), 0) / vals.length;
+                    result = variance.toFixed(4);
+                    explanation = `분산 = Σ(x - 평균)^2 / n = ${result}`;
+                    break;
+                }
+                case "stddev": {
+                    const vals = valuesStr.split(/[\s,]+/).map(Number);
+                    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+                    const variance = vals.reduce((acc, x) => acc + Math.pow(x - mean, 2), 0) / vals.length;
+                    const stddev = Math.sqrt(variance);
+                    result = stddev.toFixed(4);
+                    explanation = `표준편차 = √분산 = √${variance.toFixed(4)} = ${result}`;
+                    break;
+                }
+            }
+
+            document.getElementById("result").innerText = `결과: ${result}`;
+            document.getElementById("explanation").innerText = `설명: ${explanation}`;
+        }
+    </script>
+
+</body>
+
+</html>
