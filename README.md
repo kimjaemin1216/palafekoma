@@ -33,7 +33,7 @@
 ## 📦 제작자 깃허브
 
 ```bash
-https://github.com/kimjaemin1216/palafekoma.git
+[제작자 깃허브] (https://github.com/kimjaemin1216/palafekoma.git)
 ```
 
 ---
